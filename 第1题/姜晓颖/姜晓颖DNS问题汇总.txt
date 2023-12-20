@@ -1,0 +1,20 @@
+第二部已经走完但是没办法通过www.test.com 访问静态网页
+
+发现是SERVER没写
+
+
+通过域名访问时报错
+
+An error occurred.
+Sorry, the page you are looking for is currently unavailable.
+Please try again later.
+
+If you are the system administrator of this resource then you should check the error log for details.
+
+Faithfully yours, nginx.
+
+查看是SSH  SSH 连接被 IP 地址为 192.168.168.138 的客户端关闭
+
+用curl +域名测试发现报错提示要用80端口
+
+发现是端口写错  域名的端口用的是80

@@ -1,0 +1,19 @@
+第一题
+https
+修改完ngxin.conf 后运行报错，后在/root/nginx  下运行./nginx -V 发现ssl模块未安装
+安装完成后启动 ngxin报错
+
+
+nginx: [emerg] cannot load certificate "/etc/ssl/dns.zhuozi.fun_ssl.crt": BIO_new_file() failed (SSL: error:02001002:system library:fopen:No such file or directory:fopen('/etc/ssl/dns.zhuozi.fun_ssl.crt','r') error:2006D080:BIO routines:BIO_new_file:no such file)
+经检查是nginx无法找到ssl证书文件
+
+更改路径后 报错
+nginx: [emerg] invalid number of arguments in "ssl_certificate" directive in /usr/local/nginx/conf/nginx.conf:109
+这个错误信息是由Nginx服务器报告的，它指示在配置文件中的 ssl_certificate 指令中存在无效的参数数量。根据错误信息，错误出现在 /usr/local/nginx/conf/nginx.conf 配置文件的第 109 行。
+
+配置文件有问题
+
+
+
+通过https访问 发现网页不信任证书，最后在阿里云上下载证书
+https://developer.aliyun.com/article/875508

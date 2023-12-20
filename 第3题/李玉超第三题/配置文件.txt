@@ -1,0 +1,77 @@
+配置文档：
+在每台虚拟机上部署静态网页并配置Tomcat：
+在每台虚拟机上安装 Tomcat 和 JDK 并配置环境变量
+分别在两台虚拟机上创建目录 /var/lib/tomcat/webapps/root/ 并将静态网页放入该目录下（该目录和网页文件名为小写的 root）
+修改 /var/lib/tomcat/conf/server.xml 配置文件，添加如下代码：
+<Host name="localhost"  appBase="webapps"
+        unpackWARs="true" autoDeploy="true">
+  <Valve className="org.apache.catalina.valves.RemoteIpValve" />
+  <Alias>${hostname}</Alias>
+  <Context path="" docBase="/var/lib/tomcat/webapps/root"/>
+</Host>
+这个 Host 的 name 属性设置为 “localhost”，Context 的 path 属性设置为空字符串，表示访问该虚拟机的 IP 地址时，默认访问该 Context 下的网页，docBase 属性设置为放置静态网页的目录。Alias 标签用于指定虚拟机的主机名，这里使用系统变量 ${hostname} 获取主机名。
+
+启动 Tomcat：sudo systemctl start tomcat
+现在，当你访问虚拟机的 IP 地址时，应该可以看到部署的静态网页和主机名了。
+
+在每台虚拟机上配置 Nginx：
+在每台虚拟机上安装 nginx：sudo apt-get install nginx
+修改 /etc/nginx/nginx.conf 配置文件，添加如下代码：
+http {
+  upstream tomcat_backend {
+    server localhost:8080;
+  }
+
+  server {
+    listen 80;
+    server_name localhost;
+    location / {
+      proxy_pass http://tomcat_backend/;
+    }
+  }
+}
+上面的配置中，定义了一个名为 tomcat_backend 的 upstream 块，用来指定反向代理的服务器地址。然后，创建了一个名为 localhost 的 server 块，用来处理客户端的请求。其中 listen 指令用于指定监听端口和服务器地址，server_name 指定本机的 hostname，location 用于指定反向代理的路径，并使用 proxy_pass 指向上面定义的 tomcat_backend 块。
+
+启动 nginx：sudo systemctl start nginx
+现在，当你访问 Nginx 监听的 IP 地址时，它会将请求转发到 Tomcat，然后将响应返回给客户端。
+
+使用 Keepalived 实现 Nginx 的高可用：
+在每台虚拟机上安装 keepalived：sudo apt-get install keepalived
+在每台虚拟机上创建 /etc/keepalived/keepalived.conf 配置文件，并添加如下代码：
+vrrp_script chk_nginx {
+  script "killall -0 nginx"
+  interval 2
+  weight -2
+}
+
+vrrp_instance VI_1 {
+  interface eth0
+  state MASTER
+  virtual_router_id 51
+  priority 101
+  advert_int 1
+
+  virtual_ipaddress {
+    192.168.1.100
+  }
+
+  track_script {
+    chk_nginx
+  }
+}
+这个配置文件定义了一个名为 VI_1 的 VRRP 实例，使用 VRRP 协议来控制虚拟 IP 地址的控制权。其中，virtual_router_id 为 51，priority 分别为 101 和 100，state 分别为 MASTER 和 BACKUP，virtual_ipaddress 为虚拟 IP 地址。
+
+启动 keepalived：sudo systemctl start keepalived
+现在，如果其中一台主机故障，keepalived 会将虚拟 IP 地址转移到另一台主机上，确保整个服务的高可用性。
+
+使用 Rewrite 实现多个 servername 的重定向：
+修改 Nginx 的配置文件 /etc/nginx/nginx.conf，添加如下代码：
+http {
+  upstream tomcat_backend {
+    server localhost:8080;
+  }
+
+  server {
+    listen 80;
+    server_name server1.com;
+    rewrite ^(.*)$ http://192.168.139.34

@@ -1,0 +1,45 @@
+1、实训时间：2023年11月6日~2023年11月24日
+2、实训组别：1
+
+3、实训参与人：王子龙
+
+4、实训内容：
+docker23.0.1+mysql8主从
+1、使用docker实现同网段的两台虚拟内的容器拉取mysql8，并实现两个mysql8容器的主从同步
+
+docker24.0.7+zookeeper(wurstmeister/zookeeper)latest+kafka(wurstmeister/kafka)
+1、使用docker实现同网段的一台虚拟内的容器拉取zookeeper，另外一台容器拉取kafka，并基于单台kafka容器的主题(topic)实现以控制台消息生产(produce)和消费(consume)为主的应用测试
+
+
+5、实训总结
+学会了依靠macvlan的方式实现同网段容器间相互连接
+
+6、实训中碰到的问题
+
+安装docker后启动失败
+Job for docker.service failed because the control process exited with error
+使用sudo rm -rf /var/lib/docker，清理缓存后顺利启动
+
+配置主从同步，解决Slave_IO_Running：Connecting 问题（修改好主从同步之间的文件），实现MySQL主从同步
+
+
+ifconfig不显示网卡，并与Xshell断开连接
+1. nmcli con show没有任何信息输出
+2. sudu nmcli  con up 'ifname' 网卡名
+显示 错误：链接激活失败
+3.查看状态nmcli n
+显示disabled
+4.开启 nmcli n on
+重新输入nmcli n后显示enabled后可用，
+5输入 sudu nmcli  con up 'ifname' 网卡名后显示链接激活成功
+再次输入ifconfig显示网卡，可以连接到Xshell
+
+7、自己对IT运维行业或者岗位的认识和感悟
+需要有广泛的知识和技能，要持续学习和不断更新自己的技术知识
+团队合作能够提高效率，要学会沟通和团队合作
+要具有责任心和细致的注意力和更快的反应能力
+
+8、职业规划
+
+积极学习和提升技能，拓宽自己的技能边界，可以增加自己的竞争力，并为未来的职业发展做好准备。
+我们需要具备适应变化和挑战的能力。时刻保持学习和进步的心态，主动寻求新的机会和挑战，在职业中保持竞争力。

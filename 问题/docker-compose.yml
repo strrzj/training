@@ -1,0 +1,41 @@
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:7.2.0  #镜像
+    container_name: elk_elasticsearch  #定义容器名称
+    restart: always  #开机启动，失败也会一直重启
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9500:9200
+  kibana:
+    image: kibana:7.2.0
+    container_name: elk_kibana
+    restart: always
+    depends_on:
+      - elasticsearch #kibana在elasticsearch启动之后再启动
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9500 #设置访问elasticsearch的地址
+    ports:
+      - 5601:5601
+  logstash:
+    image: logstash:7.2.0
+    container_name: elk_logstash
+    restart: always
+    volumes:
+      - /data/elk/logstash/logstash-springboot.conf:/usr/share/logstash/pipeline/logstash.conf #挂载logstash的配置文件
+    depends_on: 
+      - elasticsearch #kibana在elasticsearch启动之后再启动
+    links:
+      - elasticsearch:es #可以用es这个域名访问elasticsearch服务
+    ports:
+      - 4560:4560
+
+  elasticsearch-head:
+    image: mobz/elasticsearch-head:5
+    container_name: elk_elasticsearch_head
+    restart: always
+    ports:
+      - 9100:9100
+    depends_on:
+      - elasticsearch

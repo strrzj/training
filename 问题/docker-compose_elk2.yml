@@ -1,0 +1,47 @@
+version: "3"
+services:
+  elasticsearch:
+    image: elasticsearch:7.2.0
+    container_name: elasticsearch 
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: single-node
+     # ES_JAVA_OPTS: "-Xmx1024m -Xms1024m" 
+      ES_JAVA_OPTS: "-Xmx1g -Xms1g"
+    volumes:
+    - /data/elk/elasticsearch/mount:/usr/share/elasticsearch/mount
+    - /data/elk/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+  logstash:
+    image: logstash:7.2.0
+    container_name: logstash
+    ports:
+      - "5044:5044"
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - /data/elk/logstash/pipeline:/usr/share/logstash/pipeline
+      - /data/elk/logstash/logstash-springboot.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+  kibana:
+    image: kibana:7.2.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    volumes:
+      - /data/elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    environment:
+      - ELASTICSEARCH_URL=http://192.168.9.147:9200  
+    #network_mode: host
+    depends_on:
+      - elasticsearch
+  elasticsearch-head:
+    image: mobz/elasticsearch-head:5
+    container_name: elk_elasticsearch_head
+    restart: always
+    ports:
+      - 9100:9100
+    depends_on:
+      - elasticsearch
